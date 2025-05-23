@@ -1,0 +1,192 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Here Am</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #FFFFFF, #FFE4E1);
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23F06292' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+      background-size: cover;
+    }
+    /* Loader Styles */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #FFFFFF, #FFE4E1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    #loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .flower {
+      width: 50px;
+      height: 50px;
+      margin: 0 15px;
+      animation: bloom 1.5s ease-in-out infinite;
+      animation-delay: calc(var(--delay) * 0.3s);
+    }
+    @keyframes bloom {
+      0% {
+        transform: scale(0.5) rotate(0deg);
+        opacity: 0.5;
+      }
+      50% {
+        transform: scale(1.2) rotate(15deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.8;
+      }
+    }
+    #main-content {
+      display: none;
+    }
+    #main-content.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <div id="loader">
+    <svg class="flower" style="--delay: 0" fill="#F06292" viewBox="0 0 24 24">
+      <path d="M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2zm0 18a8 8 0 0 1-8-8c0-2.2.9-4.2 2.3-5.7L12 12v-2c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2v3l5.7-5.7A8 8 0 0 1 20 12a8 8 0 0 1-8 8z"/>
+    </svg>
+    <svg class="flower" style="--delay: 1" fill="#F06292" viewBox="0 0 24 24">
+      <path d="M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2zm0 18a8 8 0 0 1-8-8c0-2.2.9-4.2 2.3-5.7L12 12v-2c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2v3l5.7-5.7A8 8 0 0 1 20 12a8 8 0 0 1-8 8z"/>
+    </svg>
+    <svg class="flower" style="--delay: 2" fill="#F06292" viewBox="0 0 24 24">
+      <path d="M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2zm0 18a8 8 0 0 1-8-8c0-2.2.9-4.2 2.3-5.7L12 12v-2c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2v3l5.7-5.7A8 8 0 0 1 20 12a8 8 0 0 1-8 8z"/>
+    </svg>
+  </div>
+  <div id="main-content">
+    <header class="bg-pink-400 shadow-lg py-4 px-6">
+      <div class="max-w-7xl mx-auto flex items-center">
+        <svg class="w-8 h-8 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2a10 10 0 0 0-7.2 16.8L12 22l7.2-3.2A10 10 0 0 0 12 2zm0 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+        </svg>
+        <h1 class="text-2xl font-bold text-white">Here Am</h1>
+      </div>
+    </header>
+    <main class="max-w-7xl mx-auto py-8 px-6 flex-grow relative">
+      <h2 class="text-3xl font-bold text-pink-500 mb-6 fade-in">Sign Up</h2>
+      <div class="bg-white p-6 rounded-xl shadow card fade-in mb-6 max-w-md mx-auto">
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-gray-600 mb-1">Full Name</label>
+            <input type="text" id="name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter your full name">
+          </div>
+          <div>
+            <label for="email" class="block text-gray-600 mb-1">Email</label>
+            <input type="email" id="email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter your email">
+          </div>
+          <div>
+            <label for="password" class="block text-gray-600 mb-1">Password</label>
+            <input type="password" id="password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Create a password">
+          </div>
+          <button id="signupBtn" class="w-full bg-pink-500 text-white px-6 py-3 rounded-full hover:bg-pink-600 transition">Sign Up</button>
+          <p class="text-center text-gray-600">Already have an account? <a href="login.html" class="text-pink-500 hover:text-pink-600">Login</a></p>
+        </div>
+      </div>
+      <div class="wave"></div>
+    </main>
+  </div>
+  <script>
+    const loader = document.getElementById('loader');
+    const mainContent = document.getElementById('main-content');
+    const signupBtn = document.getElementById('signupBtn');
+
+    setTimeout(() => {
+      loader.classList.add('hidden');
+      mainContent.classList.add('visible');
+    }, 2000);
+
+    signupBtn.addEventListener('click', () => {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      if (name && email && password) {
+        alert('Sign up successful! (This is a demo.)');
+        window.location.href = 'login.html';
+      } else {
+        alert('Please fill in all fields.');
+      }
+    });
+  </script>
+</body>
+</html>

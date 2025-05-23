@@ -1,0 +1,173 @@
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Safest Path - Here Am</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FFFFFF, #FFE4E1);
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    #map {
+      height: 400px;
+      background-color: #e5e7eb;
+      border-radius: 0.75rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    .leaflet-routing-container {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-pink-400 shadow-lg">
+    <div class="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-white flex items-center">
+        <svg class="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2a10 10 0 0 0-7.2 16.8L12 22l7.2-3.2A10 10 0 0 0 12 2zm0 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+        </svg>
+        Here Am
+      </h1>
+      <!-- You can keep your navigation here -->
+       <nav class="hidden md:flex space-x-4">
+        <a href="home.html" class="text-white hover:text-gray-200 flex items-center nav-link">Home</a>
+        <a href="guide.html" class="text-white hover:text-gray-200 flex items-center nav-link">Guide</a>
+        <a href="emergency.html" class="text-white hover:text-gray-200 flex items-center nav-link">Emergency</a>
+        <a href="safest-path.html" class="text-white hover:text-gray-200 flex items-center nav-link">Safe Path</a>
+        <a href="share-live-location.html" class="text-white hover:text-gray-200 flex items-center nav-link">Share Location</a>
+        <a href="sos.html" class="text-white hover:text-gray-200 flex items-center nav-link">SOS</a>
+        <a href="community.html" class="text-white hover:text-gray-200 flex items-center nav-link">Community</a>
+        <a href="chatbot.html" class="text-white hover:text-gray-200 flex items-center nav-link">AI Chatbot</a>
+        <a href="about-us.html" class="text-white hover:text-gray-200 flex items-center nav-link">About Us</a>
+      </nav>
+    </div>
+  </header>
+  <main class="max-w-2xl mx-auto py-8 px-6 flex-grow relative">
+    <h2 class="text-3xl font-bold text-pink-500 mb-6 fade-in">Find the Safest Path</h2>
+    <div class="bg-white p-6 rounded-xl shadow card fade-in mb-6">
+      <div class="flex flex-col md:flex-row gap-4 mb-4">
+        <div class="flex-1">
+          <label for="start" class="block text-gray-600 mb-2">Starting Point (Any Place or Address)</label>
+          <input type="text" id="start" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="e.g. Connaught Place, Delhi">
+        </div>
+        <div class="flex-1">
+          <label for="destination" class="block text-gray-600 mb-2">Destination (Any Place or Address)</label>
+          <input type="text" id="destination" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="e.g. Saket, Delhi">
+        </div>
+      </div>
+      <button id="find-safest-btn" class="bg-pink-500 text-white px-6 py-3 rounded-full hover:bg-pink-600 transition">Find Safest Path</button>
+    </div>
+    <div id="map" class="fade-in"></div>
+    <div id="safe-info" class="mt-6"></div>
+  </main>
+  <footer class="bg-gradient-to-r from-pink-400 to-pink-500 text-white mt-auto">
+    <div class="max-w-7xl mx-auto py-6 px-6 text-center">
+      <p class="text-sm">© 2025 Here Am. All rights reserved. Made with ❤️</p>
+    </div>
+  </footer>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Demo safe locations
+    const safeLocations = [
+      { lat: 28.6315, lng: 77.2167, name: "Police Station - Connaught Place", area: "Connaught Place", description: "Open 24/7. Always staffed and a safe spot for emergencies." },
+      { lat: 28.5245, lng: 77.1855, name: "City Mall Security Desk", area: "Saket", description: "On-site security and surveillance, centrally located." },
+      { lat: 28.5897, lng: 77.0560, name: "Women's Help Center", area: "Dwarka", description: "Specialized support and quick response for women in need." },
+      { lat: 28.5672, lng: 77.2100, name: "Hospital - AIIMS", area: "South Delhi", description: "24/7 emergency, well-lit and always bustling with people." },
+      { lat: 28.6329, lng: 77.2195, name: "Police Booth - Rajiv Chowk", area: "Rajiv Chowk", description: "Visible security presence at all times." },
+      { lat: 28.6312, lng: 77.2177, name: "Night Café", area: "Connaught Place", description: "Well-lit, open late, and staff trained for emergencies." }
+    ];
+
+    let map = L.map('map').setView([28.6139, 77.2090], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add safe location markers
+    safeLocations.forEach(loc => {
+      L.marker([loc.lat, loc.lng])
+        .addTo(map)
+        .bindPopup(`<b>${loc.name}</b><br>${loc.area}<br>${loc.description}`);
+    });
+
+    let routeLine = null;
+    function drawRoute(start, end) {
+      if (routeLine) map.removeLayer(routeLine);
+      routeLine = L.polyline([start, end], { color: 'blue' }).addTo(map);
+      map.fitBounds([start, end]);
+    }
+
+    function distance(lat1, lng1, lat2, lng2) {
+      const R = 6371e3, toRad = x => x * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function isNearLine(point, lineStart, lineEnd) {
+      // Crude: check if near either endpoint (within 1km)
+      return distance(point.lat, point.lng, lineStart[0], lineStart[1]) < 1000 ||
+             distance(point.lat, point.lng, lineEnd[0], lineEnd[1]) < 1000;
+    }
+
+    async function geocode(place) {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const data = await res.json();
+      if (data && data[0]) {
+        return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+      } else {
+        return null;
+      }
+    }
+
+    document.getElementById('find-safest-btn').onclick = async () => {
+      const startPlace = document.getElementById('start').value.trim();
+      const endPlace = document.getElementById('destination').value.trim();
+      if (!startPlace || !endPlace) {
+        alert('Please enter both starting point and destination.');
+        return;
+      }
+      document.getElementById('safe-info').innerHTML = "Geocoding locations, please wait...";
+      let startVal = await geocode(startPlace);
+      let endVal = await geocode(endPlace);
+      if (!startVal || !endVal) {
+        document.getElementById('safe-info').innerHTML = "";
+        alert("Could not find one of the places. Please check your spelling or try a more specific address.");
+        return;
+      }
+      drawRoute(startVal, endVal);
+
+      // Find safe places near the line (within ~1km, simple demo logic)
+      const safeNearby = safeLocations.filter(loc => isNearLine(loc, startVal, endVal));
+      document.getElementById('safe-info').innerHTML = safeNearby.length ?
+        `<h3 class="text-xl font-semibold text-pink-600 mb-3">Safe Locations Along the Route:</h3>
+         <ul class="space-y-3">
+           ${safeNearby.map(loc =>
+            `<li class="bg-white shadow rounded-lg p-4 border-l-4 border-pink-400">
+              <span class="font-bold">${loc.name}</span><br>
+              <span class="text-sm text-gray-500">${loc.area}</span>
+              <div class="mt-1 text-gray-700">${loc.description}</div>
+            </li>`).join('')}
+         </ul>`
+        : `<p class="text-gray-600">No safe locations found along your route.</p>`;
+    };
+
+    window.onload = () => document.querySelectorAll('.fade-in').forEach(e => e.style.opacity = 1);
+  </script>
+</body>
+</html>

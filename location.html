@@ -1,0 +1,125 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share Live Location - Women Safety</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FFFFFF, #FFE4E1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-pink-500">Women Safety</h1>
+      <div class="md:hidden">
+        <button id="hamburger" class="text-pink-500 focus:outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+        </button>
+      </div>
+      <nav id="nav-menu" class="hidden md:flex space-x-4">
+        <a href="home.html" class="text-gray-600 hover:text-pink-500">Home</a>
+        <a href="guide.html" class="text-gray-600 hover:text-pink-500">Guide</a>
+        <a href="safest-path.html" class="text-gray-600 hover:text-pink-500">Safest Path</a>
+        <a href="emergency.html" class="text-gray-600 hover:text-pink-500">Emergency</a>
+        <a href="location.html" class="text-gray-600 hover:text-pink-500">Location</a>
+        <a href="sos.html" class="text-gray-600 hover:text-pink-500">SOS</a>
+        <a href="news.html" class="text-gray-600 hover:text-pink-500">News</a>
+        <a href="community.html" class="text-gray-600 hover:text-pink-500">Community</a>
+        <a href="chatbot.html" class="text-gray-600 hover:text-pink-500">Chatbot</a>
+      </nav>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow">
+      <nav class="flex flex-col space-y-2 p-4">
+        <a href="home.html" class="text-gray-600 hover:text-pink-500">Home</a>
+        <a href="guide.html" class="text-gray-600 hover:text-pink-500">Guide</a>
+        <a href="safest-path.html" class="text-gray-600 hover:text-pink-500">Safest Path</a>
+        <a href="emergency.html" class="text-gray-600 hover:text-pink-500">Emergency</a>
+        <a href="location.html" class="text-gray-600 hover:text-pink-500">Location</a>
+        <a href="sos.html" class="text-gray-600 hover:text-pink-500">SOS</a>
+        <a href="news.html" class="text-gray-600 hover:text-pink-500">News</a>
+        <a href="community.html" class="text-gray-600 hover:text-pink-500">Community</a>
+        <a href="chatbot.html" class="text-gray-600 hover:text-pink-500">Chat    </nav>
+      </div>
+    </div>
+  </header>
+  <main class="max-w-7xl mx-auto py-8 px-6 flex-grow">
+    <h2 class="text-3xl font-bold text-pink-500 mb-6">Share Live Location</h2>
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p class="text-gray-600 mb-4">Share your live location with trusted contacts for safety.</p>
+      <button id="shareLocation" class="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">Start Sharing</button>
+      <p id="status" class="mt-4 text-gray-600">Click the button to share your location.</p>
+    </div>
+  </main>
+  <footer class="bg-white shadow mt-auto">
+    <div class="max-w-7xl mx-auto py-4 px-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+      <p class="text-gray-600">© 2025 Women Safety. All rights reserved.</p>
+      <nav class="flex flex-wrap justify-center space-x-4">
+        <a href="home.html" class="text-gray-600 hover:text-pink-500">Home</a>
+        <a href="guide.html" class="text-gray-600 hover:text-pink-500">Guide</a>
+        <a href="safest-path.html" class="text-gray-600 hover:text-pink-500">Safest Path</a>
+        <a href="emergency.html" class="text-gray-600 hover:text-pink-500">Emergency</a>
+        <a href="location.html" class="text-gray-600 hover:text-pink-500">Location</a>
+        <a href="sos.html" class="text-gray-600 hover:text-pink-500">SOS</a>
+        <a href="news.html" class="text-gray-600 hover:text-pink-500">News</a>
+        <a href="community.html" class="text-gray-600 hover:text-pink-500">Community</a>
+        <a href="chatbot.html" class="text-gray-600 hover:text-pink-500">Chatbot</a>
+      </nav>
+    </div>
+  </footer>
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    document.getElementById('shareLocation').addEventListener('click', () => {
+      document.getElementById('status').textContent = 'Location sharing started (simulated).';
+    });
+  </script>
+</body>
+</html>
