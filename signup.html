@@ -1,0 +1,120 @@
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup | Here I AM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FFFFFF, #FFE4E1);
+    }
+    .logo-circle {
+      background: #FF69B4;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto -40px;
+      position: relative;
+      z-index: 10;
+    }
+    .input-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #FF69B4;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen px-4">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md relative">
+    <div class="logo-circle">
+      <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2a10 10 0 0 0-7.2 16.8L12 22l7.2-3.2A10 10 0 0 0 12 2zm0 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+      </svg>
+    </div>
+    <h1 class="text-3xl font-bold text-pink-500 text-center mt-12 mb-2">Here I Am</h1>
+    <p class="text-gray-600 text-center mb-6">Join Here I Am to access a suite of safety tools designed for women.</p>
+    <div class="relative mb-4">
+      <svg class="w-5 h-5 input-icon" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2a10 10 0 0 0-7.2 16.8L12 22l7.2-3.2A10 10 0 0 0 12 2zm0 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+      </svg>
+      <input type="text" id="name" class="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Full Name">
+    </div>
+    <div class="relative mb-4">
+      <svg class="w-5 h-5 input-icon" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-2.3 2L12 11.3 6.3 6h11.4zM4 18V7.7l7.9 5.6a1 1 0 0 0 1.2 0L20 7.7V18H4z"/>
+      </svg>
+      <input type="email" id="email" class="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Email Address">
+    </div>
+    <div class="relative mb-4">
+      <svg class="w-5 h-5 input-icon" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6.5 5A4.5 4.5 0 0 1 11 9.5c0 2.5-2 4.5-4.5 4.5S2 12 2 9.5 4 5 6.5 5zm0 2a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5zm10 0A4.5 4.5 0 0 1 21 9.5c0 2.5-2 4.5-4.5 4.5S12 12 12 9.5 14 5 16.5 5zm0 2a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5zM6.5 14c-2.5 0-4.5 2-4.5 4.5v2h9v-2c0-2.5-2-4.5-4.5-4.5zm10 0c-2.5 0-4.5 2-4.5 4.5v2h9v-2c0-2.5-2-4.5-4.5-4.5z"/>
+      </svg>
+      <input type="tel" id="phone" class="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Phone Number">
+    </div>
+    <div class="relative mb-4">
+      <svg class="w-5 h-5 input-icon" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6.5 5A4.5 4.5 0 0 1 11 9.5c0 2.5-2 4.5-4.5 4.5S2 12 2 9.5 4 5 6.5 5zm0 2a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5zm10 0A4.5 4.5 0 0 1 21 9.5c0 2.5-2 4.5-4.5 4.5S12 12 12 9.5 14 5 16.5 5zm0 2a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5zM6.5 14c-2.5 0-4.5 2-4.5 4.5v2h9v-2c0-2.5-2-4.5-4.5-4.5zm10 0c-2.5 0-4.5 2-4.5 4.5v2h9v-2c0-2.5-2-4.5-4.5-4.5z"/>
+      </svg>
+      <input type="tel" id="emergency" class="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Emergency Contact Number">
+    </div>
+    <div class="flex items-center mb-4">
+      <svg class="w-5 h-5 text-pink-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2zm-2 15l-4-4 1.4-1.4L10 14.2l6.6-6.6L18 9l-8 8z"/>
+      </svg>
+      <p class="text-gray-600">We will send One Time Password on this mobile number</p>
+    </div>
+    <div class="flex items-center mb-4">
+      <input type="checkbox" id="terms" class="mr-2">
+      <label for="terms" class="text-gray-600">I agree to the Terms and Conditions</label>
+    </div>
+    <button onclick="window.location.href='index.html'" class="w-full bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600 transition">Sign Up</button>
+    <p class="mt-4 text-center text-gray-600">Already have an account? <a href="index.html" class="text-pink-500 hover:underline">Login here</a></p>
+  </div>
+</body>
+</html>
